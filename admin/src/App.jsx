@@ -1,4 +1,4 @@
- import React, { useState } from "react";
+ import { useState } from "react";
  import { Route, Routes, Navigate } from "react-router-dom";
  import SignIn from "./components/SignIn";
  import Navbar from "./components/Navbar";
@@ -6,10 +6,12 @@
  import AllProductList from "./pages/AllProductList";
  import Orders from "./pages/Orders";
  import Sidebar from "./components/Sidebar";
+import { useAdminContext } from "./context/AdminContext";
 
  const App = () => {
-   // 👇 Simple login state (later backend se replace kar sakte ho)
-   const [isAdmin, setIsAdmin] = useState(true);
+  
+  const { isAdmin } = useAdminContext();
+  
 
    if (!isAdmin) {
      return <SignIn />;
