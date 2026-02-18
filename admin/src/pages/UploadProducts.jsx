@@ -160,7 +160,7 @@
        {/* Submit */}
        <button
          type="submit"
-         className="bg-black text-white w-30 py-3 mt-5 rounded-2xl"
+         className="bg-black text-white w-30 py-3 mt-5 rounded-2xl cursor-pointer"
        >
          ADD
        </button>
