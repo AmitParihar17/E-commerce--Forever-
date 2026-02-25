@@ -35,6 +35,7 @@ const productSchema = new mongoose.Schema(
     bestseller: {
       type: Boolean,
       default: false,
+  
     },
     sizes: {
       type: [String],
