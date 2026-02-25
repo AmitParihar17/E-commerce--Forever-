@@ -18,10 +18,18 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    image: {
-      type: [String],
-      required: true,
-    },
+    image: [
+      {
+        url: {
+          type: String,
+          required: true,
+        },
+        public_id: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     category: {
       type: String,
       required: true,
@@ -35,7 +43,6 @@ const productSchema = new mongoose.Schema(
     bestseller: {
       type: Boolean,
       default: false,
-  
     },
     sizes: {
       type: [String],
