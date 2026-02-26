@@ -1,54 +1,58 @@
 import mongoose from "mongoose";
-import { Product } from "../models/product.model";
-import uploadOnCloudinary from "../utils/cloudinary.utils";
+import { Product } from "../models/product.model.js";
+import uploadOnCloudinary from "../utils/cloudinary.utils.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const addProduct = async (req, res) => {
   try {
-    const { name, price, category, subCategory, sizes } = req.body;
-    if (!name || !price || !category || !subCategory || !sizes) {
+    const { name, price, category, subCategory, sizes, description } = req.body;
+
+    if (!name || !price || !category || !subCategory || !sizes || !description) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
       });
     }
-    const localFilePath = req.files?.path;
-    if (!localFilePath) {
+
+    if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Image is required",
+        message: "At least one image is required",
       });
     }
-    const cloudinaryResponse = await uploadOnCloudinary(localFilePath);
-    if (!cloudinaryResponse) {
-      return res.status(400).json({
-        success: false,
-        message: "Failed to upload image on cloudinary",
-      });
-    }
-    const checkExistingProductUsingName = await Product.findOne({ name });
-    if (checkExistingProductUsingName) {
+
+    const existingProduct = await Product.findOne({ name });
+    if (existingProduct) {
       return res.status(400).json({
         success: false,
         message: "Product already exist with this name",
       });
     }
+
+    const imageData = [];
+
+    for (let file of req.files) {
+      const result = await uploadOnCloudinary(file.path);
+
+      imageData.push({
+        url: result.secure_url,
+        public_id: result.public_id,
+      });
+    }
+
     const product = await Product.create({
       name,
       price,
       category,
       subCategory,
-      sizes: JSON.parse(sizes),
-      image: [
-        {
-          url: cloudinaryResponse.secure_url,
-          public_id: cloudinaryResponse.public_id,
-        },
-      ],
+      sizes: Array.isArray(sizes) ? sizes : [sizes],
+      image: imageData,
+      description
     });
 
     return res.status(201).json({
       success: true,
-      message: "product added successfully",
+      message: "Product added successfully",
       product,
     });
   } catch (error) {
@@ -56,10 +60,11 @@ const addProduct = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Server error ,Failed to add Product",
+      message: "Server error, Failed to add Product",
     });
   }
 };
+ 
 
 const getAllProducts = async (req, res) => {
   try {

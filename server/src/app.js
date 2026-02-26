@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import productRouter from "./routes/product.routes";
+import productRouter from "./routes/product.routes.js";
 
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,

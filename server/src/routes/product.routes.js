@@ -4,8 +4,8 @@ import {
   deleteProduct,
   getAllProducts,
   getSingleProduct,
-} from "../controllers/product.controllers";
-import { upload } from "../middleware/multer.middleware";
+} from "../controllers/product.controllers.js";
+import { upload } from "../middleware/multer.middleware.js";
 
 const productRouter = Router();
 
