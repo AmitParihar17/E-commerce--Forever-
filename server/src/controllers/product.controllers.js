@@ -156,4 +156,72 @@ const deleteProduct = async (req,res) => {
         });
     }
 }
-export { addProduct, getAllProducts, getSingleProduct,deleteProduct};
+
+ const updateProduct = async (req, res) => {
+   try {
+     const { id } = req.params;
+
+     if (!mongoose.Types.ObjectId.isValid(id)) {
+       return res.status(400).json({
+         success: false,
+         message: "Invalid product id",
+       });
+     }
+
+     const product = await Product.findById(id);
+
+     if (!product) {
+       return res.status(404).json({
+         success: false,
+         message: "Product not found",
+       });
+     }
+
+     let imageData = product.image;
+
+     // If new images uploaded
+     if (req.files && req.files.length > 0) {
+       // Delete old images
+       for (let img of product.image) {
+         await cloudinary.uploader.destroy(img.public_id);
+       }
+
+       imageData = [];
+
+       for (let file of req.files) {
+         const result = await uploadOnCloudinary(file.path);
+
+         imageData.push({
+           url: result.secure_url,
+           public_id: result.public_id,
+         });
+       }
+     }
+
+     const updatedProduct = await Product.findByIdAndUpdate(
+       id,
+       {
+         ...req.body,
+         sizes: Array.isArray(req.body.sizes)
+           ? req.body.sizes
+           : [req.body.sizes],
+         image: imageData,
+       },
+       { new: true },
+     );
+
+     return res.status(200).json({
+       success: true,
+       message: "Product updated successfully",
+       data: updatedProduct,
+     });
+   } catch (error) {
+     console.log(error.message, "Error while updating product");
+
+     return res.status(500).json({
+       success: false,
+       message: "Server error, Failed to update product",
+     });
+   }
+ };
+export { addProduct, getAllProducts, getSingleProduct,deleteProduct,updateProduct};
